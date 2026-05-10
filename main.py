@@ -49,6 +49,7 @@ async def agent_card():
         "name": "Healthcare A2A Risk Analyzer",
         "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk",
         "version": "2.0.0",
+        "url": "https://healthcare-a2a-agent-app.onrender.com",
         "supportedInterfaces": [
             {
                 "type": "rest",
@@ -58,7 +59,27 @@ async def agent_card():
                 "protocolVersion": "1.0"
             }
         ],
-        "capabilities": ["blood_pressure_classification", "cardiovascular_risk_assessment", "medication_reconciliation"],
+        "capabilities": {
+            "streaming": false,
+            "pushNotifications": false
+        },
+        "skills": [
+            {
+                "id": "blood_pressure_classification",
+                "name": "Blood Pressure Classification",
+                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal based on ACC/AHA guidelines"
+            },
+            {
+                "id": "cardiovascular_risk_assessment",
+                "name": "Cardiovascular Risk Assessment",
+                "description": "Calculates cardiovascular risk based on age and blood pressure"
+            },
+            {
+                "id": "medication_reconciliation",
+                "name": "Medication Reconciliation",
+                "description": "Reviews medications and identifies potential interactions"
+            }
+        ],
         "endpoint": "https://healthcare-a2a-agent-app.onrender.com/task",
         "health": "https://healthcare-a2a-agent-app.onrender.com/health"
     }
