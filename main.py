@@ -5,23 +5,25 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# THIS IS THE KEY: It tells the browser/dashboard that it's safe to read your data
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.get("/")
 async def root():
-    return {"message": "Agent is Online"}
+    return {"message": "TechWithAb Healthcare Agent is Live"}
 
 @app.get("/.well-known/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
     return {
         "name": "Healthcare Risk Agent",
-        "description": "Analyzing cardiovascular risk factors.",
+        "description": "Clinical decision support for BP and Cardiovascular risk",
         "version": "1.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
         "authentication": {"type": "none"},
@@ -36,7 +38,7 @@ async def agent_card():
                 "id": "risk-check",
                 "name": "Health Risk Check",
                 "description": "Checks health data",
-                "tags": ["health"],
+                "tags": ["clinical"],
                 "inputModes": ["application/json"],
                 "outputModes": ["application/json"]
             }
@@ -53,9 +55,11 @@ async def agent_card():
     }
 
 @app.post("/task")
-async def task():
-    return {"status": "success"}
+async def task_handler():
+    return {"status": "success", "message": "Task processed"}
 
 if __name__ == "__main__":
+    # Use Render's PORT or default to 10000
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    # Passing the app as a string "main:app" is the most stable way on Render
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
