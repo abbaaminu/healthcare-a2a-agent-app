@@ -78,16 +78,17 @@ async def health_check():
     }
 
 # ============================================
-# AGENT CARD - PROMPT OPINION COMPATIBLE FORMAT
+# AGENT CARD - ALL PATHS PROMPT OPINION NEEDS
 # ============================================
 @app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
 @app.get("/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
+    """A2A Standard Agent Card - Supports all possible paths"""
     return {
         "name": "Healthcare A2A Risk Analyzer",
-        "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk",
+        "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk using FHIR data. Provides evidence-based recommendations.",
         "version": "2.0.0",
         "supportedInterfaces": ["rest"],
         "capabilities": [
