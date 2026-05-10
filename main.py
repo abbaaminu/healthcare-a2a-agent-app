@@ -101,7 +101,7 @@ async def agent_card():
                 "url": "https://healthcare-a2a-agent-app.onrender.com/task"
             }
         ],
-        "capabilities": [
+            "capabilities": [
     {"name": "blood_pressure_classification"},
     {"name": "cardiovascular_risk_assessment"},
     {"name": "medication_reconciliation"}
