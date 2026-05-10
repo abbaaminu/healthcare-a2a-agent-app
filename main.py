@@ -28,6 +28,10 @@ async def agent_card():
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
         "capabilities": ["clinical_analysis", "medication_reconciliation"],
+        # Add this: Dashboards often crash if authentication is missing
+        "authentication": {
+            "type": "none"
+        },
         "supportedInterfaces": [
             {
                 "type": "rest",
