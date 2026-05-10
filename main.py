@@ -45,12 +45,63 @@ async def health_check():
 @app.get("/agent-card.json")
 async def agent_card():
     return {
+        # === REQUIRED FIELDS ===
         "name": "Healthcare A2A Risk Analyzer",
         "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk",
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
+        
+        # === AUTHENTICATION (REQUIRED by A2A spec) ===
+        "authentication": {
+            "schemes": []
+        },
+        
+        # === PROVIDER (RECOMMENDED) ===
+        "provider": {
+            "organization": "Healthcare AI",
+            "url": "https://healthcare-a2a-agent-app.onrender.com"
+        },
+        
+        # === INPUT/OUTPUT MODES ===
         "defaultInputModes": ["application/json"],
         "defaultOutputModes": ["application/json"],
+        
+        # === CAPABILITIES ===
+        "capabilities": {
+            "streaming": False,
+            "pushNotifications": False,
+            "stateTransitionHistory": False
+        },
+        
+        # === SKILLS ===
+        "skills": [
+            {
+                "id": "blood_pressure_classification",
+                "name": "Blood Pressure Classification",
+                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal",
+                "tags": ["clinical", "vital_signs", "hypertension"],
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
+            },
+            {
+                "id": "cardiovascular_risk_assessment",
+                "name": "Cardiovascular Risk Assessment",
+                "description": "Calculates cardiovascular risk based on age and blood pressure",
+                "tags": ["clinical", "risk_assessment", "cardiology"],
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
+            },
+            {
+                "id": "medication_reconciliation",
+                "name": "Medication Reconciliation",
+                "description": "Reviews medications and identifies potential interactions",
+                "tags": ["clinical", "medication_safety", "pharmacy"],
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
+            }
+        ],
+        
+        # === SUPPORTED INTERFACES ===
         "supportedInterfaces": [
             {
                 "type": "rest",
@@ -60,36 +111,8 @@ async def agent_card():
                 "protocolVersion": "1.0"
             }
         ],
-        "capabilities": {
-            "streaming": False,
-            "pushNotifications": False
-        },
-        "skills": [
-            {
-                "id": "https://healthcare-a2a-agent-app.onrender.com/.well-known/agent-card.json",
-                "name": "Blood Pressure Classification",
-                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal",
-                "tags": ["clinical", "vital_signs", "hypertension"],
-                "inputModes": ["application/json"],
-                "outputModes": ["application/json"]
-            },
-            {
-                "id": "https://healthcare-a2a-agent-app.onrender.com/.well-known/agent-card.json",
-                "name": "Cardiovascular Risk Assessment",
-                "description": "Calculates cardiovascular risk based on age and blood pressure",
-                "tags": ["clinical", "risk_assessment", "cardiology"],
-                "inputModes": ["application/json"],
-                "outputModes": ["application/json"]
-            },
-            {
-                "id": "https://healthcare-a2a-agent-app.onrender.com/.well-known/agent-card.json",
-                "name": "Medication Reconciliation",
-                "description": "Reviews medications and identifies potential interactions",
-                "tags": ["clinical", "medication_safety", "pharmacy"],
-                "inputModes": ["application/json"],
-                "outputModes": ["application/json"]
-            }
-        ],
+        
+        # === ENDPOINTS ===
         "endpoint": "https://healthcare-a2a-agent-app.onrender.com/task",
         "health": "https://healthcare-a2a-agent-app.onrender.com/health"
     }
