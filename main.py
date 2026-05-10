@@ -52,12 +52,15 @@ async def agent_card():
         "supportedInterfaces": [
             {
                 "type": "rest",
-                "version": "1.0"
+                "version": "1.0",
+                "url": "https://healthcare-a2a-agent-app.onrender.com/task",
+                "protocolBinding": "http",
+                "protocolVersion": "1.0"
             }
         ],
-        "capabilities": ["blood_pressure", "risk_assessment"],
-        "endpoint": "/task",
-        "health": "/health"
+        "capabilities": ["blood_pressure_classification", "cardiovascular_risk_assessment", "medication_reconciliation"],
+        "endpoint": "https://healthcare-a2a-agent-app.onrender.com/task",
+        "health": "https://healthcare-a2a-agent-app.onrender.com/health"
     }
 
 # ============================================
