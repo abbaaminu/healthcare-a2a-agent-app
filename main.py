@@ -1,21 +1,12 @@
-#!/usr/bin/env python3
-# FORCE DEPLOY - Prompt Opinion Integration
-"""
-Healthcare A2A Agent - Working Version for Render
-"""
-
 import os
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from typing import Dict, Any, List
 from datetime import datetime
 import uvicorn
 
-# Create FastAPI app
 app = FastAPI(title="Healthcare A2A Agent", version="2.0.0")
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,86 +15,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ============================================
-# HEALTH CHECK
-# ============================================
 @app.get("/health")
 async def health_check():
-    return {
-        "status": "ok",
-        "service": "Healthcare A2A Agent",
-        "version": "2.0.0",
-        "timestamp": datetime.now().isoformat(),
-        "ready": True
-    }
+    return {"status": "ok", "ready": True}
 
-# ============================================
-# AGENT CARD - A2A COMPLIANT
-# ============================================
-@app.get("/.well-known/agent-card.json")
+@app.get("/ai-agent.json")
 @app.get("/.well-known/ai-agent.json")
-@app.get("/agent-card.json")
 async def agent_card():
     return {
         "name": "Healthcare A2A Risk Analyzer",
-        "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk",
+        "description": "Clinical decision support agent analyzing BP and cardiovascular risk",
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
-        
-        "authentication": {
-            "schemes": []
-        },
-        
-        # FIX: Capabilities must be a LIST of IDs
-        "capabilities": [
-            "clinical_analysis",
-            "medication_reconciliation"
-        ],
-        
-        "skills": [
-            {
-                "id": "blood_pressure_classification",
-                "name": "Blood Pressure Classification",
-                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal",
-                "inputModes": ["application/json"],
-                "outputModes": ["application/json"]
-            }
-        ],
-        
+        "capabilities": ["clinical_analysis", "medication_reconciliation"],
         "supportedInterfaces": [
             {
                 "type": "rest",
                 "version": "1.0",
                 "url": "https://healthcare-a2a-agent-app.onrender.com/task",
-                "protocolBinding": "http",
-                "protocolVersion": "1.0"
+                "protocolBinding": "http"
             }
-        ]
-    }
-        
-        # === ENDPOINTS ===
-        "endpoint": "https://healthcare-a2a-agent-app.onrender.com/task",
-        "health": "https://healthcare-a2a-agent-app.onrender.com/health"
-    }
-# ============================================
-# ROOT ENDPOINT
-# ============================================
-@app.get("/")
-async def root():
-    return {
-        "message": "Healthcare A2A Agent is running",
-        "version": "2.0.0",
-        "endpoints": ["/health", "/task (POST)", "/.well-known/ai-agent.json"]
+        ],
+        "api_endpoint": "https://healthcare-a2a-agent-app.onrender.com/task"
     }
 
-# ============================================
-# MAIN TASK ENDPOINT
-# ============================================
+@app.get("/")
+async def root():
+    return {"message": "Healthcare A2A Agent is running"}
+
 @app.post("/task")
 async def handle_task(payload: Dict[str, Any] = Body(...)):
     try:
-        # Fixed the indentation of the entire try block
-        resources = payload.get("context", {}).get("fhir_resources", [])
+        context = payload.get("context", {})
+        resources = context.get("fhir_resources", [])
         
         systolic = 0
         diastolic = 0
@@ -111,47 +55,37 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
         
         for resource in resources:
             if resource.get("resourceType") == "Observation":
-                code = str(resource.get("code", {}).get("text", ""))
-                if "Blood Pressure" in code:
+                text = resource.get("code", {}).get("text", "")
+                if "Blood Pressure" in text:
                     for comp in resource.get("component", []):
                         val = comp.get("valueQuantity", {}).get("value", 0)
-                        comp_code = str(comp.get("code", {}).get("text", ""))
-                        if "Systolic" in comp_code:
+                        c_text = comp.get("code", {}).get("text", "")
+                        if "Systolic" in c_text:
                             systolic = val
-                        elif "Diastolic" in comp_code:
+                        elif "Diastolic" in c_text:
                             diastolic = val
             elif resource.get("resourceType") == "MedicationRequest":
-                med_name = resource.get("medicationCodeableConcept", {}).get("text", "")
-                if med_name:
-                    medications.append(med_name)
+                med = resource.get("medicationCodeableConcept", {}).get("text", "")
+                if med:
+                    medications.append(med)
         
         if systolic >= 140 or diastolic >= 90:
-            category = "Stage 2 Hypertension"
-            rec = "Immediate clinical follow-up required"
+            cat = "Stage 2 Hypertension"
         elif systolic >= 130 or diastolic >= 80:
-            category = "Stage 1 Hypertension"
-            rec = "Lifestyle modifications recommended"
+            cat = "Stage 1 Hypertension"
         else:
-            category = "Normal"
-            rec = "Continue routine monitoring"
-        
+            cat = "Normal"
+            
         return {
             "status": "completed",
             "output": {
-                "text": f"BP: {systolic}/{diastolic} - {category}. {rec}",
-                "tool_outputs": {
-                    "blood_pressure": {"systolic": systolic, "diastolic": diastolic, "category": category},
-                    "medications": medications
-                },
-                "next_tasks": ["Confirm BP in clinic", "Review meds", "Schedule follow-up"]
+                "text": f"Result: {systolic}/{diastolic} - {cat}",
+                "tool_outputs": {"category": cat, "meds": medications}
             }
         }
     except Exception as e:
         return {"status": "failed", "error": str(e)}
 
-# ============================================
-# RUN THE APP
-# ============================================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
