@@ -93,7 +93,7 @@ async def root():
     return {
         "message": "Healthcare A2A Agent is running",
         "version": "2.0.0",
-        "endpoints": ["/health", "/task (POST)", "/.well-known/agent-card.json"]
+        "endpoints": ["/health", "/task (POST)", "/.well-known/ai-agent.json"]
     }
 
 # ============================================
@@ -102,9 +102,9 @@ async def root():
 @app.post("/task")
 async def handle_task(payload: Dict[str, Any] = Body(...)):
     try:
+        # Fixed the indentation of the entire try block
         resources = payload.get("context", {}).get("fhir_resources", [])
         
-        # Extract BP
         systolic = 0
         diastolic = 0
         medications = []
@@ -125,7 +125,6 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
                 if med_name:
                     medications.append(med_name)
         
-        # Classify BP
         if systolic >= 140 or diastolic >= 90:
             category = "Stage 2 Hypertension"
             rec = "Immediate clinical follow-up required"
@@ -141,43 +140,14 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
             "output": {
                 "text": f"BP: {systolic}/{diastolic} - {category}. {rec}",
                 "tool_outputs": {
-                    "blood_pressure": {
-                        "systolic": systolic,
-                        "diastolic": diastolic,
-                        "category": category
-                    },
+                    "blood_pressure": {"systolic": systolic, "diastolic": diastolic, "category": category},
                     "medications": medications
                 },
-                "next_tasks": [
-                    "Confirm BP reading in clinic",
-                    "Review medication adherence",
-                    "Schedule follow-up appointment"
-                ]
+                "next_tasks": ["Confirm BP in clinic", "Review meds", "Schedule follow-up"]
             }
         }
     except Exception as e:
-        return {
-            "status": "failed",
-            "error": str(e)
-        }
-
-# ============================================
-# FALLBACK HANDLER
-# ============================================
-@app.get("/{path:path}")
-async def catch_all(path: str):
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "Healthcare A2A Agent is running",
-            "available_endpoints": [
-                "/",
-                "/health",
-                "/task (POST)",
-                "/.well-known/agent-card.json"
-            ]
-        }
-    )
+        return {"status": "failed", "error": str(e)}
 
 # ============================================
 # RUN THE APP
