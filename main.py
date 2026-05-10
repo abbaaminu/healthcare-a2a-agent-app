@@ -1,50 +1,42 @@
 import os
 import uvicorn
-from fastapi import FastAPI, Body
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, Any
 
 app = FastAPI()
 
-# 1. CORS Middleware: Allows Prompt Opinion to talk to your server
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 2. Health Check: Tells Render your app is healthy
 @app.get("/")
-async def health():
-    return {"status": "Healthcare Agent is Live"}
+async def root():
+    return {"message": "Agent is Online"}
 
-# 3. Discovery Routes: The "Handshake" files for the dashboard
 @app.get("/.well-known/agent-card.json")
-@app.get("/.well-known/ai-agent.json")
-@app.get("/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
     return {
-        "name": "Healthcare A2A Risk Analyzer",
-        "description": "Clinical decision support for BP and Cardiovascular risk",
-        "version": "2.0.0",
+        "name": "Healthcare Risk Agent",
+        "description": "Analyzing cardiovascular risk factors.",
+        "version": "1.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
+        "authentication": {"type": "none"},
         "defaultInputModes": ["application/json"],
         "defaultOutputModes": ["application/json"],
-        "authentication": {"type": "none"},
         "capabilities": {
-            "streaming": False, 
-            "pushNotifications": False, 
-            "stateTransitionHistory": False
+            "streaming": False,
+            "pushNotifications": False
         },
         "skills": [
             {
-                "id": "bp_analysis",
-                "name": "BP Analysis",
-                "description": "Classifies blood pressure",
-                "tags": ["clinical"],
+                "id": "risk-check",
+                "name": "Health Risk Check",
+                "description": "Checks health data",
+                "tags": ["health"],
                 "inputModes": ["application/json"],
                 "outputModes": ["application/json"]
             }
@@ -55,21 +47,15 @@ async def agent_card():
                 "version": "1.0",
                 "url": "https://healthcare-a2a-agent-app.onrender.com/task",
                 "protocolBinding": "http",
-                "protocolVersion": "1.0"
+                "protocolVersion": "1.1"
             }
-        ],
-        "api_endpoint": "https://healthcare-a2a-agent-app.onrender.com/task"
+        ]
     }
 
-# 4. Task Endpoint: Where the actual data is processed
 @app.post("/task")
-async def handle_task(payload: Dict[str, Any] = Body(...)):
-    return {
-        "status": "completed", 
-        "output": {"text": "Healthcare agent successfully received and processed the request."}
-    }
+async def task():
+    return {"status": "success"}
 
-# 5. The Correct Startup Logic: Keeps the server from shutting down
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
