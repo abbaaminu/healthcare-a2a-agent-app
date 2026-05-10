@@ -66,7 +66,10 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
     return {"status": "completed", "output": {"text": "A2A Task received successfully."}}
 
 if __name__ == "__main__":
-    # Render assigns a port dynamically via environment variable
+    import uvicorn
+    import os
+    # Get the port from Render's environment
     port = int(os.environ.get("PORT", 10000))
-    # Using 0.0.0.0 is MANDATORY for cloud hosting
+    # 'app' refers to the 'app = FastAPI()' line at the top
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
     uvicorn.run(app, host="0.0.0.0", port=port)
