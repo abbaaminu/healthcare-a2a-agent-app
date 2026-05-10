@@ -61,6 +61,8 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
     return {"status": "completed", "output": {"text": "Agent received data successfully."}}
 
 if __name__ == "__main__":
-    # CRITICAL: Render provides the PORT as an environment variable
+    import os
+    # Render uses the PORT environment variable. 10000 is the default fallback.
     port = int(os.environ.get("PORT", 10000))
+    # You MUST use 0.0.0.0 so Render can route traffic to your app
     uvicorn.run(app, host="0.0.0.0", port=port)
