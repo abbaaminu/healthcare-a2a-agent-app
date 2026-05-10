@@ -81,59 +81,57 @@ async def health_check():
     }
 
 # ============================================
-# AGENT CARD (A2A Standard Discovery)
+# AGENT CARD (A2A Standard - Prompt Opinion Compatible)
 # ============================================
 @app.get("/.well-known/ai-agent.json")
 @app.get("/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
+    """A2A Standard Agent Card - Compliant with Prompt Opinion requirements"""
     return {
         "name": "Healthcare A2A Risk Analyzer",
         "description": "Clinical decision support agent analyzing blood pressure, cardiovascular risk, and medication safety using FHIR data. Provides evidence-based recommendations with explainable AI.",
         "version": "2.0.0",
-        "publisher": {
-            "name": "Healthcare AI",
-            "email": "healthcare@example.com"
-        },
-        "capabilities": [
-            "blood_pressure_classification",
-            "cardiovascular_risk_assessment",
-            "medication_reconciliation",
-            "clinical_guideline_integration",
-            "fhir_parsing",
-            "explainable_ai"
+        "supportedInterfaces": [
+            {
+                "type": "REST",
+                "endpoint": "/task",
+                "method": "POST",
+                "contentType": "application/json"
+            }
         ],
-        "endpoint": "/task",
-        "health_endpoint": "/health",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "description": "Clinician's query"
-                },
-                "context": {
-                    "type": "object",
-                    "properties": {
-                        "fhir_resources": {
-                            "type": "array",
-                            "description": "FHIR R4 resources"
-                        }
-                    }
-                }
+        "capabilities": [
+            {
+                "name": "blood_pressure_classification",
+                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal based on ACC/AHA 2017 guidelines"
+            },
+            {
+                "name": "cardiovascular_risk_assessment",
+                "description": "Calculates simplified cardiovascular risk based on age and blood pressure"
+            },
+            {
+                "name": "medication_reconciliation",
+                "description": "Reviews medications and identifies potential interactions"
+            },
+            {
+                "name": "clinical_guideline_integration",
+                "description": "Provides evidence-based recommendations from ACC/AHA and JNC 8 guidelines"
+            },
+            {
+                "name": "fhir_parsing",
+                "description": "Extracts and normalizes clinical data from FHIR R4 resources"
+            },
+            {
+                "name": "explainable_ai",
+                "description": "Provides reasoning traces and clinical evidence for all recommendations"
             }
+        ],
+        "health": {
+            "endpoint": "/health",
+            "method": "GET"
         },
-        "output_schema": {
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "output": {
-                    "text": {"type": "string"},
-                    "tool_outputs": {"type": "object"},
-                    "next_tasks": {"type": "array"}
-                }
-            }
-        }
+        "endpoint": "/task",
+        "health_endpoint": "/health"
     }
 
 # ============================================
