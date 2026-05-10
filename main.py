@@ -36,21 +36,12 @@ async def agent_card():
             "pushNotifications": False,
             "stateTransitionHistory": False
         },
-        # FIX: Added 'tags' to every skill to satisfy the A2A.AgentSkill requirement
         "skills": [
             {
                 "id": "blood_pressure_classification",
                 "name": "Blood Pressure Classification",
                 "description": "Classifies blood pressure readings",
                 "tags": ["clinical", "vital-signs"],
-                "inputModes": ["application/json"],
-                "outputModes": ["application/json"]
-            },
-            {
-                "id": "medication_reconciliation",
-                "name": "Medication Reconciliation",
-                "description": "Identifies drug interactions",
-                "tags": ["pharmacy", "safety"],
                 "inputModes": ["application/json"],
                 "outputModes": ["application/json"]
             }
@@ -60,7 +51,9 @@ async def agent_card():
                 "type": "rest",
                 "version": "1.0",
                 "url": "https://healthcare-a2a-agent-app.onrender.com/task",
-                "protocolBinding": "http"
+                "protocolBinding": "http",
+                # FIX: This is the missing property the dashboard is asking for
+                "protocolVersion": "1.0" 
             }
         ],
         "api_endpoint": "https://healthcare-a2a-agent-app.onrender.com/task"
