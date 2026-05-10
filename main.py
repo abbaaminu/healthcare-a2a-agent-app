@@ -31,17 +31,26 @@ async def agent_card():
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
         "authentication": {"type": "none"},
-        # FIXED: Returning to Object format to satisfy the A2A.AgentCapabilities parser
         "capabilities": {
             "streaming": False,
             "pushNotifications": False,
             "stateTransitionHistory": False
         },
+        # FIX: Added 'tags' to every skill to satisfy the A2A.AgentSkill requirement
         "skills": [
             {
                 "id": "blood_pressure_classification",
                 "name": "Blood Pressure Classification",
                 "description": "Classifies blood pressure readings",
+                "tags": ["clinical", "vital-signs"],
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
+            },
+            {
+                "id": "medication_reconciliation",
+                "name": "Medication Reconciliation",
+                "description": "Identifies drug interactions",
+                "tags": ["pharmacy", "safety"],
                 "inputModes": ["application/json"],
                 "outputModes": ["application/json"]
             }
@@ -56,7 +65,6 @@ async def agent_card():
         ],
         "api_endpoint": "https://healthcare-a2a-agent-app.onrender.com/task"
     }
-
 @app.get("/")
 async def root():
     return {"message": "Healthcare A2A Agent is running"}
