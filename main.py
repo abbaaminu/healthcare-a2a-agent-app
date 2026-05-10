@@ -6,20 +6,21 @@ from typing import Dict, Any
 
 app = FastAPI()
 
-# Enable CORS for Prompt Opinion to connect
+# Essential for Dashboard connection
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Render needs this to return 200 OK to keep the app alive
+# Render Health Check (Root)
 @app.get("/")
 async def health():
-    return {"status": "alive", "service": "Healthcare Agent"}
+    return {"status": "Healthcare Agent Live"}
 
-# We are adding every possible path variant to ensure no more 404s
+# A2A Discovery Routes
 @app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
 @app.get("/agent-card.json")
@@ -62,10 +63,10 @@ async def agent_card():
 
 @app.post("/task")
 async def handle_task(payload: Dict[str, Any] = Body(...)):
-    return {"status": "completed", "output": {"text": "Data received."}}
+    return {"status": "completed", "output": {"text": "A2A Task received successfully."}}
 
 if __name__ == "__main__":
-    # Render provides the PORT variable. Using 10000 as default.
+    # Render assigns a port dynamically via environment variable
     port = int(os.environ.get("PORT", 10000))
-    # host MUST be 0.0.0.0 for external access
+    # Using 0.0.0.0 is MANDATORY for cloud hosting
     uvicorn.run(app, host="0.0.0.0", port=port)
