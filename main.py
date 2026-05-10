@@ -30,6 +30,11 @@ async def agent_card():
         "description": "Clinical decision support agent analyzing BP and cardiovascular risk",
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
+        
+        # FIX: The last required properties for the A2A.AgentCard parser
+        "defaultInputModes": ["application/json"],
+        "defaultOutputModes": ["application/json"],
+        
         "authentication": {"type": "none"},
         "capabilities": {
             "streaming": False,
@@ -52,8 +57,7 @@ async def agent_card():
                 "version": "1.0",
                 "url": "https://healthcare-a2a-agent-app.onrender.com/task",
                 "protocolBinding": "http",
-                # FIX: This is the missing property the dashboard is asking for
-                "protocolVersion": "1.0" 
+                "protocolVersion": "1.0"
             }
         ],
         "api_endpoint": "https://healthcare-a2a-agent-app.onrender.com/task"
