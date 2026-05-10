@@ -80,6 +80,7 @@ async def health_check():
 # ============================================
 # AGENT CARD - PROMPT OPINION COMPATIBLE FORMAT
 # ============================================
+@app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
 @app.get("/agent-card.json")
 @app.get("/ai-agent.json")
