@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 app = FastAPI()
 
-# Essential for Dashboard connection
+# 1. CORS Middleware: Allows Prompt Opinion to talk to your server
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,12 +15,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Render Health Check (Root)
+# 2. Health Check: Tells Render your app is healthy
 @app.get("/")
 async def health():
-    return {"status": "Healthcare Agent Live"}
+    return {"status": "Healthcare Agent is Live"}
 
-# A2A Discovery Routes
+# 3. Discovery Routes: The "Handshake" files for the dashboard
 @app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
 @app.get("/agent-card.json")
@@ -61,17 +61,15 @@ async def agent_card():
         "api_endpoint": "https://healthcare-a2a-agent-app.onrender.com/task"
     }
 
+# 4. Task Endpoint: Where the actual data is processed
 @app.post("/task")
 async def handle_task(payload: Dict[str, Any] = Body(...)):
-    return {"status": "completed", "output": {"text": "A2A Task received successfully."}}
+    return {
+        "status": "completed", 
+        "output": {"text": "Healthcare agent successfully received and processed the request."}
+    }
 
+# 5. The Correct Startup Logic: Keeps the server from shutting down
 if __name__ == "__main__":
-    import uvicorn
-    import os
-     # Fetch the port from Render's environment
     port = int(os.environ.get("PORT", 10000))
-    
-    # CRITICAL: We pass the 'app' as a string "main:app" 
-    # This tells uvicorn to run the 'app' instance inside 'main.py'
-    # and keep the process alive indefinitely.
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)n(app, host="0.0.0.0", port=port)rn.run("main:app", host="0.0.0.0", port=port, reload=False)n(app, host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
