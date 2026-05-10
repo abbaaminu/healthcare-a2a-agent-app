@@ -19,7 +19,10 @@ app.add_middleware(
 async def health():
     return {"status": "alive", "service": "Healthcare Agent"}
 
+# We are adding every possible path variant to ensure no more 404s
+@app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
+@app.get("/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
     return {
