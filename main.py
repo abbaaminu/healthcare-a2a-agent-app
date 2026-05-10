@@ -49,6 +49,8 @@ async def agent_card():
         "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk",
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
+        "defaultInputModes": ["text"],
+        "defaultOutputModes": ["text"],
         "supportedInterfaces": [
             {
                 "type": "rest",
@@ -67,25 +69,30 @@ async def agent_card():
                 "id": "blood_pressure_classification",
                 "name": "Blood Pressure Classification",
                 "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal",
-                "tags": ["clinical", "vital_signs", "hypertension"]
+                "tags": ["clinical", "vital_signs", "hypertension"],
+                "inputModes": ["text"],
+                "outputModes": ["text"]
             },
             {
                 "id": "cardiovascular_risk_assessment",
                 "name": "Cardiovascular Risk Assessment",
                 "description": "Calculates cardiovascular risk based on age and blood pressure",
-                "tags": ["clinical", "risk_assessment", "cardiology"]
+                "tags": ["clinical", "risk_assessment", "cardiology"],
+                "inputModes": ["text"],
+                "outputModes": ["text"]
             },
             {
                 "id": "medication_reconciliation",
                 "name": "Medication Reconciliation",
                 "description": "Reviews medications and identifies potential interactions",
-                "tags": ["clinical", "medication_safety", "pharmacy"]
+                "tags": ["clinical", "medication_safety", "pharmacy"],
+                "inputModes": ["text"],
+                "outputModes": ["text"]
             }
         ],
         "endpoint": "https://healthcare-a2a-agent-app.onrender.com/task",
         "health": "https://healthcare-a2a-agent-app.onrender.com/health"
     }
-
 # ============================================
 # ROOT ENDPOINT
 # ============================================
