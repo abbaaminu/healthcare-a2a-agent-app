@@ -66,17 +66,20 @@ async def agent_card():
             {
                 "id": "blood_pressure_classification",
                 "name": "Blood Pressure Classification",
-                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal"
+                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal",
+                "tags": ["clinical", "vital_signs", "hypertension"]
             },
             {
                 "id": "cardiovascular_risk_assessment",
                 "name": "Cardiovascular Risk Assessment",
-                "description": "Calculates cardiovascular risk based on age and blood pressure"
+                "description": "Calculates cardiovascular risk based on age and blood pressure",
+                "tags": ["clinical", "risk_assessment", "cardiology"]
             },
             {
                 "id": "medication_reconciliation",
                 "name": "Medication Reconciliation",
-                "description": "Reviews medications and identifies potential interactions"
+                "description": "Reviews medications and identifies potential interactions",
+                "tags": ["clinical", "medication_safety", "pharmacy"]
             }
         ],
         "endpoint": "https://healthcare-a2a-agent-app.onrender.com/task",
