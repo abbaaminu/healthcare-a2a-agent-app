@@ -86,7 +86,6 @@ async def health_check():
 @app.get("/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
-    """A2A Standard Agent Card - Complete Prompt Opinion Format"""
     return {
         "name": "Healthcare A2A Risk Analyzer",
         "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk using FHIR data. Provides evidence-based recommendations with explainable AI.",
@@ -103,18 +102,9 @@ async def agent_card():
             }
         ],
         "capabilities": [
-            {
-                "name": "blood_pressure_classification",
-                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal"
-            },
-            {
-                "name": "cardiovascular_risk_assessment",
-                "description": "Calculates cardiovascular risk based on age and blood pressure"
-            },
-            {
-                "name": "medication_reconciliation",
-                "description": "Reviews medications and identifies potential interactions"
-            }
+            "blood_pressure_classification",
+            "cardiovascular_risk_assessment",
+            "medication_reconciliation"
         ],
         "endpoint": {
             "url": "https://healthcare-a2a-agent-app.onrender.com/task",
