@@ -19,8 +19,11 @@ app.add_middleware(
 async def health_check():
     return {"status": "ok", "ready": True}
 
-@app.get("/ai-agent.json")
+# Add ALL these decorators to the same function
+@app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
+@app.get("/agent-card.json")
+@app.get("/ai-agent.json")
 async def agent_card():
     return {
         "name": "Healthcare A2A Risk Analyzer",
@@ -28,10 +31,7 @@ async def agent_card():
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
         "capabilities": ["clinical_analysis", "medication_reconciliation"],
-        # Add this: Dashboards often crash if authentication is missing
-        "authentication": {
-            "type": "none"
-        },
+        "authentication": {"type": "none"},
         "supportedInterfaces": [
             {
                 "type": "rest",
