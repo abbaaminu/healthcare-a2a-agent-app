@@ -6,6 +6,7 @@ from typing import Dict, Any
 
 app = FastAPI()
 
+# Enable CORS for Prompt Opinion to connect
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,13 +14,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Render needs this to return 200 OK to keep the app alive
 @app.get("/")
 async def health():
-    return {"status": "Healthcare Agent Live"}
+    return {"status": "alive", "service": "Healthcare Agent"}
 
 @app.get("/.well-known/ai-agent.json")
 @app.get("/ai-agent.json")
-@app.get("/.well-known/agent-card.json")
 async def agent_card():
     return {
         "name": "Healthcare A2A Risk Analyzer",
@@ -58,11 +59,10 @@ async def agent_card():
 
 @app.post("/task")
 async def handle_task(payload: Dict[str, Any] = Body(...)):
-    return {"status": "completed", "output": {"text": "Agent received data successfully."}}
+    return {"status": "completed", "output": {"text": "Data received."}}
 
 if __name__ == "__main__":
-    import os
-    # Render uses the PORT environment variable. 10000 is the default fallback.
+    # Render provides the PORT variable. Using 10000 as default.
     port = int(os.environ.get("PORT", 10000))
-    # You MUST use 0.0.0.0 so Render can route traffic to your app
+    # host MUST be 0.0.0.0 for external access
     uvicorn.run(app, host="0.0.0.0", port=port)
