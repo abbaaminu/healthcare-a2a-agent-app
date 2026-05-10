@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# FORCE DEPLOY - Prompt Opinion Integration
 """
 Healthcare A2A Agent - Complete Self-Contained Version
 Prompt Opinion Compatible - Fixed Agent Card Format
