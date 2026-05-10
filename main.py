@@ -78,38 +78,50 @@ async def health_check():
     }
 
 # ============================================
-# AGENT CARD - CORRECT FORMAT FOR PROMPT OPINION
+# AGENT CARD - COMPLETE PROMPT OPINION FORMAT
 # ============================================
 @app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
 @app.get("/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
-    """A2A Standard Agent Card - Correct Format for Prompt Opinion"""
+    """A2A Standard Agent Card - Complete Prompt Opinion Format"""
     return {
         "name": "Healthcare A2A Risk Analyzer",
-        "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk using FHIR data. Provides evidence-based recommendations.",
+        "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk using FHIR data. Provides evidence-based recommendations with explainable AI.",
         "version": "2.0.0",
         "supportedInterfaces": [
             {
                 "type": "rest",
                 "version": "1.0",
+                "protocolBinding": "http",
+                "protocolVersion": "1.0",
                 "endpoint": "/task",
-                "method": "POST"
+                "method": "POST",
+                "url": "https://healthcare-a2a-agent-app.onrender.com/task"
             }
         ],
         "capabilities": [
-            "blood_pressure_classification",
-            "cardiovascular_risk_assessment",
-            "medication_reconciliation"
+            {
+                "name": "blood_pressure_classification",
+                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal"
+            },
+            {
+                "name": "cardiovascular_risk_assessment",
+                "description": "Calculates cardiovascular risk based on age and blood pressure"
+            },
+            {
+                "name": "medication_reconciliation",
+                "description": "Reviews medications and identifies potential interactions"
+            }
         ],
         "endpoint": {
-            "url": "/task",
+            "url": "https://healthcare-a2a-agent-app.onrender.com/task",
             "method": "POST",
             "contentType": "application/json"
         },
         "health": {
-            "url": "/health",
+            "url": "https://healthcare-a2a-agent-app.onrender.com/health",
             "method": "GET"
         }
     }
