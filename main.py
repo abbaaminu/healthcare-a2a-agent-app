@@ -68,10 +68,10 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
 if __name__ == "__main__":
     import uvicorn
     import os
-    # Fetch the port from Render's environment
+     # Fetch the port from Render's environment
     port = int(os.environ.get("PORT", 10000))
     
     # CRITICAL: We pass the 'app' as a string "main:app" 
     # This tells uvicorn to run the 'app' instance inside 'main.py'
     # and keep the process alive indefinitely.
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)n(app, host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)n(app, host="0.0.0.0", port=port)rn.run("main:app", host="0.0.0.0", port=port, reload=False)n(app, host="0.0.0.0", port=port)
