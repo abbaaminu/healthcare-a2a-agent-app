@@ -5,7 +5,6 @@ Healthcare A2A Agent - Working Version for Render
 """
 
 import os
-import sys
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -39,7 +38,7 @@ async def health_check():
     }
 
 # ============================================
-# AGENT CARD - SIMPLE WORKING VERSION
+# AGENT CARD - A2A COMPLIANT
 # ============================================
 @app.get("/.well-known/agent-card.json")
 @app.get("/.well-known/ai-agent.json")
@@ -60,14 +59,14 @@ async def agent_card():
             }
         ],
         "capabilities": {
-            "streaming": false,
-            "pushNotifications": false
+            "streaming": False,
+            "pushNotifications": False
         },
         "skills": [
             {
                 "id": "blood_pressure_classification",
                 "name": "Blood Pressure Classification",
-                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal based on ACC/AHA guidelines"
+                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal"
             },
             {
                 "id": "cardiovascular_risk_assessment",
@@ -85,57 +84,98 @@ async def agent_card():
     }
 
 # ============================================
-# MAIN TASK ENDPOINT
-# ============================================
-@app.post("/task")
-async def handle_task(payload: Dict[str, Any] = Body(...)):
-    resources = payload.get("context", {}).get("fhir_resources", [])
-    
-    # Extract BP
-    systolic = 0
-    diastolic = 0
-    
-    for resource in resources:
-        if resource.get("resourceType") == "Observation":
-            code = str(resource.get("code", {}).get("text", ""))
-            if "Blood Pressure" in code:
-                for comp in resource.get("component", []):
-                    val = comp.get("valueQuantity", {}).get("value", 0)
-                    comp_code = str(comp.get("code", {}).get("text", ""))
-                    if "Systolic" in comp_code:
-                        systolic = val
-                    elif "Diastolic" in comp_code:
-                        diastolic = val
-    
-    # Classify
-    if systolic >= 140 or diastolic >= 90:
-        category = "Stage 2 Hypertension"
-        rec = "Immediate clinical follow-up required"
-    elif systolic >= 130 or diastolic >= 80:
-        category = "Stage 1 Hypertension"
-        rec = "Lifestyle modifications recommended"
-    else:
-        category = "Normal"
-        rec = "Continue routine monitoring"
-    
-    return {
-        "status": "completed",
-        "output": {
-            "text": f"BP: {systolic}/{diastolic} - {category}. {rec}",
-            "tool_outputs": {"blood_pressure": {"systolic": systolic, "diastolic": diastolic, "category": category}},
-            "next_tasks": ["Confirm BP reading", "Schedule follow-up"]
-        }
-    }
-
-# ============================================
 # ROOT ENDPOINT
 # ============================================
 @app.get("/")
 async def root():
     return {
         "message": "Healthcare A2A Agent is running",
+        "version": "2.0.0",
         "endpoints": ["/health", "/task (POST)", "/.well-known/agent-card.json"]
     }
+
+# ============================================
+# MAIN TASK ENDPOINT
+# ============================================
+@app.post("/task")
+async def handle_task(payload: Dict[str, Any] = Body(...)):
+    try:
+        resources = payload.get("context", {}).get("fhir_resources", [])
+        
+        # Extract BP
+        systolic = 0
+        diastolic = 0
+        medications = []
+        
+        for resource in resources:
+            if resource.get("resourceType") == "Observation":
+                code = str(resource.get("code", {}).get("text", ""))
+                if "Blood Pressure" in code:
+                    for comp in resource.get("component", []):
+                        val = comp.get("valueQuantity", {}).get("value", 0)
+                        comp_code = str(comp.get("code", {}).get("text", ""))
+                        if "Systolic" in comp_code:
+                            systolic = val
+                        elif "Diastolic" in comp_code:
+                            diastolic = val
+            elif resource.get("resourceType") == "MedicationRequest":
+                med_name = resource.get("medicationCodeableConcept", {}).get("text", "")
+                if med_name:
+                    medications.append(med_name)
+        
+        # Classify BP
+        if systolic >= 140 or diastolic >= 90:
+            category = "Stage 2 Hypertension"
+            rec = "Immediate clinical follow-up required"
+        elif systolic >= 130 or diastolic >= 80:
+            category = "Stage 1 Hypertension"
+            rec = "Lifestyle modifications recommended"
+        else:
+            category = "Normal"
+            rec = "Continue routine monitoring"
+        
+        return {
+            "status": "completed",
+            "output": {
+                "text": f"BP: {systolic}/{diastolic} - {category}. {rec}",
+                "tool_outputs": {
+                    "blood_pressure": {
+                        "systolic": systolic,
+                        "diastolic": diastolic,
+                        "category": category
+                    },
+                    "medications": medications
+                },
+                "next_tasks": [
+                    "Confirm BP reading in clinic",
+                    "Review medication adherence",
+                    "Schedule follow-up appointment"
+                ]
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "failed",
+            "error": str(e)
+        }
+
+# ============================================
+# FALLBACK HANDLER
+# ============================================
+@app.get("/{path:path}")
+async def catch_all(path: str):
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "Healthcare A2A Agent is running",
+            "available_endpoints": [
+                "/",
+                "/health",
+                "/task (POST)",
+                "/.well-known/agent-card.json"
+            ]
+        }
+    )
 
 # ============================================
 # RUN THE APP
