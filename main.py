@@ -80,33 +80,16 @@ async def health_check():
 async def agent_card():
     return {
         "name": "Healthcare A2A Risk Analyzer",
-        "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk using FHIR data. Provides evidence-based recommendations with explainable AI.",
+        "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk",
         "version": "2.0.0",
         "supportedInterfaces": [
             {
                 "type": "rest",
-                "version": "1.0",
-                "protocolBinding": "http",
-                "protocolVersion": "1.0",
-                "endpoint": "/task",
-                "method": "POST",
-                "url": "https://healthcare-a2a-agent-app.onrender.com/task"
+                "version": "1.0"
             }
         ],
-        "capabilities": [
-            {
-                "name": "blood_pressure_classification",
-                "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal based on ACC/AHA guidelines"
-            },
-            {
-                "name": "cardiovascular_risk_assessment",
-                "description": "Calculates cardiovascular risk based on age and blood pressure"
-            },
-            {
-                "name": "medication_reconciliation",
-                "description": "Reviews medications and identifies potential interactions"
-            }
-        ],
+        "capabilities": ["clinical_analysis", "risk_assessment"]
+    }
         "endpoint": {
             "url": "https://healthcare-a2a-agent-app.onrender.com/task",
             "method": "POST",
