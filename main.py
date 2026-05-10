@@ -102,10 +102,19 @@ async def agent_card():
             }
         ],
         "capabilities": [
-            {"name": "blood_pressure_classification"},
-            {"name": "cardiovascular_risk_assessment"},
-            {"name": "medication_reconciliation"}
-        ],
+    {
+        "name": "blood_pressure_classification",
+        "description": "Classifies blood pressure readings into clinical stages"
+    },
+    {
+        "name": "cardiovascular_risk_assessment",
+        "description": "Calculates cardiovascular risk based on age and blood pressure"
+    },
+    {
+        "name": "medication_reconciliation",
+        "description": "Reviews medications for interactions and duplicates"
+    }
+],
         "endpoint": {
             "url": "https://healthcare-a2a-agent-app.onrender.com/task",
             "method": "POST",
