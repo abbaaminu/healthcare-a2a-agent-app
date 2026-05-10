@@ -49,8 +49,8 @@ async def agent_card():
         "description": "Clinical decision support agent analyzing blood pressure and cardiovascular risk",
         "version": "2.0.0",
         "url": "https://healthcare-a2a-agent-app.onrender.com",
-        "defaultInputModes": ["text"],
-        "defaultOutputModes": ["text"],
+        "defaultInputModes": ["application/json"],
+        "defaultOutputModes": ["application/json"],
         "supportedInterfaces": [
             {
                 "type": "rest",
@@ -66,28 +66,28 @@ async def agent_card():
         },
         "skills": [
             {
-                "id": "blood_pressure_classification",
+                "id": "https://healthcare-a2a-agent-app.onrender.com/.well-known/agent-card.json",
                 "name": "Blood Pressure Classification",
                 "description": "Classifies blood pressure readings into Stage 1, Stage 2, or Normal",
                 "tags": ["clinical", "vital_signs", "hypertension"],
-                "inputModes": ["text"],
-                "outputModes": ["text"]
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
             },
             {
-                "id": "cardiovascular_risk_assessment",
+                "id": "https://healthcare-a2a-agent-app.onrender.com/.well-known/agent-card.json",
                 "name": "Cardiovascular Risk Assessment",
                 "description": "Calculates cardiovascular risk based on age and blood pressure",
                 "tags": ["clinical", "risk_assessment", "cardiology"],
-                "inputModes": ["text"],
-                "outputModes": ["text"]
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
             },
             {
-                "id": "medication_reconciliation",
+                "id": "https://healthcare-a2a-agent-app.onrender.com/.well-known/agent-card.json",
                 "name": "Medication Reconciliation",
                 "description": "Reviews medications and identifies potential interactions",
                 "tags": ["clinical", "medication_safety", "pharmacy"],
-                "inputModes": ["text"],
-                "outputModes": ["text"]
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
             }
         ],
         "endpoint": "https://healthcare-a2a-agent-app.onrender.com/task",
