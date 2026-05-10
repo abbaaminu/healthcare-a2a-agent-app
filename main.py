@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Healthcare A2A Agent - Complete Self-Contained Version
-No external requirements.txt needed - installs dependencies automatically!
+Prompt Opinion Compatible - Fixed Agent Card Format
 """
 
 import subprocess
@@ -59,12 +59,9 @@ async def root():
         "status": "active",
         "endpoints": {
             "health": "/health",
-            "task": "/task (POST) - Main clinical analysis",
-            "agent_card": "/.well-known/ai-agent.json (GET) - A2A Discovery",
-            "card": "/agent-card.json (GET) - Alternative agent card"
-        },
-        "documentation": "/docs",
-        "redoc": "/redoc"
+            "task": "/task (POST)",
+            "agent_card": "/.well-known/ai-agent.json"
+        }
     }
 
 # ============================================
@@ -81,23 +78,21 @@ async def health_check():
     }
 
 # ============================================
-# AGENT CARD (A2A Standard - Prompt Opinion Compatible)
+# AGENT CARD - PROMPT OPINION COMPATIBLE FORMAT
 # ============================================
 @app.get("/.well-known/ai-agent.json")
 @app.get("/agent-card.json")
 @app.get("/ai-agent.json")
 async def agent_card():
-    """A2A Standard Agent Card - Exact Prompt Opinion Format"""
+    """A2A Standard Agent Card - Exact Prompt Opinion Required Format"""
     return {
         "name": "Healthcare A2A Risk Analyzer",
         "description": "Clinical decision support agent analyzing blood pressure, cardiovascular risk, and medication safety using FHIR data. Provides evidence-based recommendations with explainable AI.",
         "version": "2.0.0",
-        "supportedInterfaces": [
-            "rest"
-        ],
+        "supportedInterfaces": ["rest"],
         "capabilities": [
             "blood_pressure_classification",
-            "cardiovascular_risk_assessment", 
+            "cardiovascular_risk_assessment",
             "medication_reconciliation",
             "clinical_guideline_integration",
             "fhir_parsing",
@@ -119,9 +114,7 @@ async def agent_card():
 # ============================================
 
 def classify_blood_pressure(systolic: int, diastolic: int) -> Dict[str, Any]:
-    """
-    Blood Pressure Classification based on ACC/AHA 2017 Guidelines
-    """
+    """Blood Pressure Classification based on ACC/AHA 2017 Guidelines"""
     if systolic >= 140 or diastolic >= 90:
         return {
             "category": "Stage 2 Hypertension",
@@ -145,7 +138,7 @@ def classify_blood_pressure(systolic: int, diastolic: int) -> Dict[str, Any]:
                 "DASH diet (fruits, vegetables, low-fat dairy)",
                 "Reduce sodium to <1500mg/day",
                 "Increase physical activity to 150 min/week",
-                "Limit alcohol to 2 drinks/day (men), 1 drink/day (women)",
+                "Limit alcohol",
                 "Consider pharmacotherapy if high risk"
             ]
         }
@@ -164,12 +157,9 @@ def classify_blood_pressure(systolic: int, diastolic: int) -> Dict[str, Any]:
         }
 
 def calculate_cardiovascular_risk(age: int, bp_category: str) -> Dict[str, Any]:
-    """
-    Simplified cardiovascular risk assessment
-    """
+    """Simplified cardiovascular risk assessment"""
     risk_score = 0
     
-    # Age-based risk
     if age > 75:
         risk_score += 3
     elif age > 65:
@@ -177,7 +167,6 @@ def calculate_cardiovascular_risk(age: int, bp_category: str) -> Dict[str, Any]:
     elif age > 55:
         risk_score += 1
     
-    # BP-based risk
     if bp_category == "Stage 2 Hypertension":
         risk_score += 2
     elif bp_category == "Stage 1 Hypertension":
@@ -200,9 +189,7 @@ def calculate_cardiovascular_risk(age: int, bp_category: str) -> Dict[str, Any]:
     }
 
 def parse_fhir_resources(resources: List[Dict]) -> Dict[str, Any]:
-    """
-    Extract clinical data from FHIR resources
-    """
+    """Extract clinical data from FHIR resources"""
     extracted = {
         "bp_systolic": 0,
         "bp_diastolic": 0,
@@ -216,7 +203,6 @@ def parse_fhir_resources(resources: List[Dict]) -> Dict[str, Any]:
         resource_type = resource.get("resourceType")
         
         if resource_type == "Patient":
-            # Extract patient demographics
             extracted["patient_gender"] = resource.get("gender")
             birth_date = resource.get("birthDate")
             if birth_date:
@@ -228,19 +214,14 @@ def parse_fhir_resources(resources: List[Dict]) -> Dict[str, Any]:
         
         elif resource_type == "Observation":
             code_text = str(resource.get("code", {}).get("text", "")).lower()
-            loinc = str(resource.get("code", {}).get("coding", [{}])[0].get("code", ""))
-            
-            # Blood Pressure (LOINC 85354-9 or text)
-            if "blood pressure" in code_text or "85354-9" in loinc:
+            if "blood pressure" in code_text:
                 components = resource.get("component", [])
                 for component in components:
                     comp_text = str(component.get("code", {}).get("text", "")).lower()
-                    comp_loinc = str(component.get("code", {}).get("coding", [{}])[0].get("code", ""))
                     value = component.get("valueQuantity", {}).get("value", 0)
-                    
-                    if "systolic" in comp_text or "8480-6" in comp_loinc:
+                    if "systolic" in comp_text:
                         extracted["bp_systolic"] = value
-                    elif "diastolic" in comp_text or "8462-4" in comp_loinc:
+                    elif "diastolic" in comp_text:
                         extracted["bp_diastolic"] = value
         
         elif resource_type == "MedicationRequest":
@@ -260,13 +241,8 @@ def parse_fhir_resources(resources: List[Dict]) -> Dict[str, Any]:
 # ============================================
 @app.post("/task")
 async def handle_task(payload: Dict[str, Any] = Body(...)):
-    """
-    Main clinical analysis endpoint
-    Receives FHIR data and returns structured clinical recommendations
-    """
+    """Main clinical analysis endpoint"""
     try:
-        # Extract data from request
-        message = payload.get("message", "")
         resources = payload.get("context", {}).get("fhir_resources", [])
         
         # Parse FHIR resources
@@ -288,67 +264,32 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
         
         # Build reasoning trace
         reasoning_trace = [
-            f"✅ Parsed {len(resources)} FHIR resources",
-            f"✅ BP: {clinical_data['bp_systolic']}/{clinical_data['bp_diastolic']} mmHg",
-            f"✅ BP Classification: {bp_result['category']}",
-            f"✅ Found {len(clinical_data['medications'])} medications",
-            f"✅ Found {len(clinical_data['conditions'])} conditions"
+            f"Parsed {len(resources)} FHIR resources",
+            f"BP: {clinical_data['bp_systolic']}/{clinical_data['bp_diastolic']} mmHg",
+            f"BP Classification: {bp_result['category']}",
+            f"Found {len(clinical_data['medications'])} medications"
         ]
-        
-        if clinical_data["patient_age"]:
-            reasoning_trace.append(f"✅ Patient age: {clinical_data['patient_age']} years")
-            if cv_risk:
-                reasoning_trace.append(f"✅ CV Risk: {cv_risk['risk_level']}")
         
         # Build clinical recommendation text
         recommendation_text = f"""
-🏥 **CLINICAL ASSESSMENT REPORT**
-{'=' * 50}
+🏥 CLINICAL ASSESSMENT REPORT
 
-📊 **VITAL SIGNS**
+📊 VITAL SIGNS
 • Blood Pressure: {clinical_data['bp_systolic']}/{clinical_data['bp_diastolic']} mmHg
-• Classification: **{bp_result['category']}**
+• Classification: {bp_result['category']}
 • Urgency: {bp_result['urgency']}
 • Follow-up: {bp_result['follow_up']}
 
-"""
-        
-        if clinical_data["patient_age"]:
-            recommendation_text += f"""
-👤 **PATIENT DEMOGRAPHICS**
-• Age: {clinical_data['patient_age']} years
-• Gender: {clinical_data['patient_gender'] or 'Not specified'}
-
-"""
-        
-        if cv_risk:
-            recommendation_text += f"""
-⚠️ **CARDIOVASCULAR RISK**
-• Risk Level: **{cv_risk['risk_level']}**
-• Assessment: {cv_risk['recommendation']}
-
-"""
-        
-        recommendation_text += f"""
-💊 **MEDICATIONS** ({len(clinical_data['medications'])} found)
-{', '.join(clinical_data['medications']) if clinical_data['medications'] else 'None documented'}
-
-📋 **CLINICAL RECOMMENDATIONS**
+📋 RECOMMENDATION
 {bp_result['guidance']}
 
-✅ **ACTIONABLE NEXT STEPS**
+✅ NEXT STEPS
 """
-        
         for rec in bp_result['recommendations']:
             recommendation_text += f"\n• {rec}"
         
-        recommendation_text += "\n"
-        
-        if clinical_data.get("conditions"):
-            recommendation_text += f"\n🏥 **CONDITIONS**\n• " + "\n• ".join(clinical_data['conditions'])
-        
         # Build final response
-        return JSONResponse(content={
+        return {
             "status": "completed",
             "output": {
                 "text": recommendation_text.strip(),
@@ -358,74 +299,25 @@ async def handle_task(payload: Dict[str, Any] = Body(...)):
                         "diastolic": clinical_data["bp_diastolic"],
                         "category": bp_result["category"],
                         "guidance": bp_result["guidance"],
-                        "urgency": bp_result["urgency"],
-                        "follow_up": bp_result["follow_up"],
-                        "recommendations": bp_result["recommendations"]
+                        "urgency": bp_result["urgency"]
                     },
                     "medications": clinical_data["medications"],
-                    "conditions": clinical_data["conditions"],
-                    "patient": {
-                        "age": clinical_data["patient_age"],
-                        "gender": clinical_data["patient_gender"]
-                    }
+                    "patient_age": clinical_data["patient_age"]
                 },
                 "next_tasks": [
                     f"Confirm BP reading: {bp_result['follow_up']}",
                     "Review medication adherence",
-                    "Provide lifestyle modification counseling",
                     "Schedule follow-up appointment"
-                ] + ([f"Cardiovascular risk assessment: {cv_risk['risk_level']}"] if cv_risk else []),
-                "reasoning_trace": reasoning_trace,
-                "clinical_evidence": [
-                    {
-                        "guideline": "ACC/AHA 2017 Hypertension Guidelines",
-                        "recommendation": bp_result["guidance"],
-                        "strength": "Class I, Level A"
-                    },
-                    {
-                        "guideline": "JNC 8 Evidence-Based Guidelines",
-                        "recommendation": "BP target <140/90 for general population, <130/80 for high-risk patients",
-                        "strength": "Class I, Level B-R"
-                    }
-                ]
-            },
-            "used_fhir_resources": [
-                {"resourceType": r.get("resourceType"), "id": r.get("id")}
-                for r in resources if r.get("resourceType")
-            ]
-        })
+                ],
+                "reasoning_trace": reasoning_trace
+            }
+        }
     
     except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "failed",
-                "error": str(e),
-                "message": "An error occurred while processing the clinical analysis"
-            }
-        )
-
-# ============================================
-# FALLBACK HANDLER (Prevents 404 errors)
-# ============================================
-@app.get("/{path:path}")
-async def catch_all(path: str):
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "🏥 Healthcare A2A Agent is running",
-            "note": "This endpoint is not recognized. Please use one of the available endpoints:",
-            "available_endpoints": [
-                "/ - Service information",
-                "/health - Health check",
-                "/task - POST clinical analysis",
-                "/.well-known/ai-agent.json - A2A agent discovery",
-                "/agent-card.json - Alternative agent card",
-                "/docs - Interactive API documentation",
-                "/redoc - Alternative API docs"
-            ]
+        return {
+            "status": "failed",
+            "error": str(e)
         }
-    )
 
 # ============================================
 # MAIN ENTRY POINT
@@ -434,7 +326,6 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     print(f"🏥 Healthcare A2A Agent starting on port {port}...")
     print(f"📋 Health check: http://localhost:{port}/health")
-    print(f"📝 API docs: http://localhost:{port}/docs")
     print(f"🤖 Agent card: http://localhost:{port}/.well-known/ai-agent.json")
     print("-" * 50)
     uvicorn.run(app, host="0.0.0.0", port=port)
